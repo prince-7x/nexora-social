@@ -15,8 +15,10 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedExploreRouteImport } from './routes/_authenticated/explore'
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
+import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages.index'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -47,6 +49,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedExploreRoute = AuthenticatedExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
@@ -57,6 +65,12 @@ const AuthenticatedCreateRoute = AuthenticatedCreateRouteImport.update({
   path: '/create',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMessagesIndexRoute =
+  AuthenticatedMessagesIndexRouteImport.update({
+    id: '/messages/',
+    path: '/messages/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -66,6 +80,8 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/create': typeof AuthenticatedCreateRoute
   '/explore': typeof AuthenticatedExploreRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/messages/': typeof AuthenticatedMessagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
@@ -74,7 +90,9 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/create': typeof AuthenticatedCreateRoute
   '/explore': typeof AuthenticatedExploreRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/messages': typeof AuthenticatedMessagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,7 +103,9 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/explore': typeof AuthenticatedExploreRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +117,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/create'
     | '/explore'
+    | '/notifications'
+    | '/messages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -105,7 +127,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/create'
     | '/explore'
+    | '/notifications'
     | '/'
+    | '/messages'
   id:
     | '__root__'
     | '/_authenticated'
@@ -115,7 +139,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authenticated/create'
     | '/_authenticated/explore'
+    | '/_authenticated/notifications'
     | '/_authenticated/'
+    | '/_authenticated/messages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -170,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/explore': {
       id: '/_authenticated/explore'
       path: '/explore'
@@ -184,19 +217,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/messages/': {
+      id: '/_authenticated/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof AuthenticatedMessagesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
   AuthenticatedExploreRoute: typeof AuthenticatedExploreRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedMessagesIndexRoute: typeof AuthenticatedMessagesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCreateRoute: AuthenticatedCreateRoute,
   AuthenticatedExploreRoute: AuthenticatedExploreRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedMessagesIndexRoute: AuthenticatedMessagesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
