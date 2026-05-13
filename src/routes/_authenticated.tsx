@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { Logo } from "@/components/Logo";
+import { Splash } from "@/components/Splash";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -30,7 +31,8 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-24">
+      <Splash />
       <div className="mx-auto max-w-md">
         <Outlet />
       </div>

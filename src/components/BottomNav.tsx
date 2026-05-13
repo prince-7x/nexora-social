@@ -6,18 +6,24 @@ import { motion } from "framer-motion";
 export function BottomNav() {
   const { profile } = useAuth();
   const loc = useLocation();
-  const items = [
-    { to: "/", icon: Home, label: "Home", match: (p: string) => p === "/" },
-    { to: "/explore", icon: Search, label: "Search", match: (p: string) => p.startsWith("/explore") },
-    { to: "/create", icon: Plus, label: "Create", match: (p: string) => p.startsWith("/create"), accent: true },
-    { to: "/messages", icon: MessageSquare, label: "Chat", match: (p: string) => p.startsWith("/messages") },
+  const items: Array<{
+    to: string;
+    icon: typeof Home;
+    label: string;
+    match: (p: string) => boolean;
+    accent?: boolean;
+  }> = [
+    { to: "/", icon: Home, label: "Home", match: (p) => p === "/" },
+    { to: "/explore", icon: Search, label: "Search", match: (p) => p.startsWith("/explore") },
+    { to: "/create", icon: Plus, label: "Create", match: (p) => p.startsWith("/create"), accent: true },
+    { to: "/messages", icon: MessageSquare, label: "Chat", match: (p) => p.startsWith("/messages") },
     {
       to: profile ? `/u/${profile.username}` : "/",
       icon: User,
       label: "Me",
-      match: (p: string) => p.startsWith("/u/"),
+      match: (p) => p.startsWith("/u/"),
     },
-  ] as const;
+  ];
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 safe-bottom pointer-events-none">
