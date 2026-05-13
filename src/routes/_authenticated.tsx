@@ -1,9 +1,8 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { Logo } from "@/components/Logo";
-import { Splash } from "@/components/Splash";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -12,6 +11,9 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthenticatedLayout() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
+  const loc = useLocation();
+  // Hide nav inside individual chat threads for full-screen immersive UX
+  const hideNav = /^\/messages\/[^/]+$/.test(loc.pathname);
 
   useEffect(() => {
     if (!loading && !session) {
@@ -31,12 +33,11 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
-      <Splash />
+    <div className={`min-h-screen ${hideNav ? "" : "pb-24"}`}>
       <div className="mx-auto max-w-md">
         <Outlet />
       </div>
-      <BottomNav />
+      {!hideNav && <BottomNav />}
     </div>
   );
 }
