@@ -62,9 +62,11 @@ function ChatPage() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
         (payload) => {
-          setMessages((m) => [...m, payload.new as Msg]);
-          if ((payload.new as Msg).sender_id !== user.id) {
-            supabase.from("messages").update({ seen: true }).eq("id", (payload.new as Msg).id);
+          const next = payload.new as Msg;
+          // dedup against double-fire (StrictMode, channel re-subscribe, optimistic merge)
+          setMessages((m) => (m.some((x) => x.id === next.id) ? m : [...m, next]));
+          if (next.sender_id !== user.id) {
+            supabase.from("messages").update({ seen: true }).eq("id", next.id);
           }
         }
       )
@@ -106,24 +108,35 @@ function ChatPage() {
   };
 
   const send = async () => {
-    if (!user || (!text.trim() && !sending)) return;
+    if (!user) return;
     const content = text.trim();
-    if (!content) return;
+    if (!content || sending) return;
+    setSending(true);
     setText("");
-    const { data: m } = await supabase.from("messages").insert({
-      conversation_id: id,
-      sender_id: user.id,
-      content,
-    }).select().single();
-    if (m) setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m as Msg]));
-    await supabase.from("conversations").update({ last_message: content, last_message_at: new Date().toISOString() }).eq("id", id);
-    if (other) {
-      await supabase.from("notifications").insert({ user_id: other.id, actor_id: user.id, type: "message" });
+    try {
+      const { data: m, error } = await supabase.from("messages").insert({
+        conversation_id: id,
+        sender_id: user.id,
+        content,
+      }).select().single();
+      if (error) throw error;
+      // Don't optimistically push — realtime INSERT handler will append (with dedup).
+      // But if realtime is delayed, ensure it shows up:
+      if (m) setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m as Msg]));
+      await supabase.from("conversations").update({ last_message: content, last_message_at: new Date().toISOString() }).eq("id", id);
+      if (other) {
+        await supabase.from("notifications").insert({ user_id: other.id, actor_id: user.id, type: "message" });
+      }
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to send");
+      setText(content);
+    } finally {
+      setSending(false);
     }
   };
 
   const sendImage = async (file: File) => {
-    if (!user) return;
+    if (!user || sending) return;
     setSending(true);
     try {
       const url = await uploadFile("chat", user.id, file);
@@ -132,7 +145,7 @@ function ChatPage() {
         sender_id: user.id,
         image_url: url,
       }).select().single();
-      if (m) setMessages((prev) => [...prev, m as Msg]);
+      if (m) setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m as Msg]));
       await supabase.from("conversations").update({ last_message: "📷 Photo", last_message_at: new Date().toISOString() }).eq("id", id);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
