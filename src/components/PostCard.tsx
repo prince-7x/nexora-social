@@ -75,7 +75,7 @@ export function PostCard({ post: initial }: { post: FeedPost }) {
   };
 
   return (
-    <article className="rounded-3xl glass overflow-hidden shadow-card">
+    <article className="rounded-3xl glass overflow-hidden shadow-card border border-white/5">
       <header className="flex items-center justify-between px-4 py-3">
         <ProfileChip profile={post.author} ring subtitle={timeAgo(post.created_at)} />
         <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition">
