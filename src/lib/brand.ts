@@ -1,5 +1,5 @@
 // Centralized brand config — change here to rebrand the app
 export const BRAND = {
-  name: "ThorX",
-  tagline: "Where moments become magnetic.",
+  name: "Nexora",
+  tagline: "Connect. Share. Glow.",
 } as const;
