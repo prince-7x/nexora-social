@@ -6,6 +6,7 @@ import { Avatar } from "@/components/Avatar";
 import { ArrowLeft, Image as ImageIcon, Send, Trash2 } from "lucide-react";
 import { uploadFile } from "@/lib/upload";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Msg = { id: string; sender_id: string; content: string | null; image_url: string | null; seen: boolean; created_at: string };
 
