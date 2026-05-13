@@ -10,6 +10,7 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "sonner";
 import { BRAND } from "@/lib/brand";
+import { Splash } from "@/components/Splash";
 
 function NotFoundComponent() {
   return (
@@ -105,6 +106,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <Splash />
         <Outlet />
         <Toaster position="top-center" theme="dark" richColors />
       </AuthProvider>

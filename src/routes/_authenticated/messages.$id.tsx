@@ -6,6 +6,7 @@ import { Avatar } from "@/components/Avatar";
 import { ArrowLeft, Image as ImageIcon, Send, Trash2 } from "lucide-react";
 import { uploadFile } from "@/lib/upload";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Msg = { id: string; sender_id: string; content: string | null; image_url: string | null; seen: boolean; created_at: string };
 
@@ -61,9 +62,11 @@ function ChatPage() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
         (payload) => {
-          setMessages((m) => [...m, payload.new as Msg]);
-          if ((payload.new as Msg).sender_id !== user.id) {
-            supabase.from("messages").update({ seen: true }).eq("id", (payload.new as Msg).id);
+          const next = payload.new as Msg;
+          // dedup against double-fire (StrictMode, channel re-subscribe, optimistic merge)
+          setMessages((m) => (m.some((x) => x.id === next.id) ? m : [...m, next]));
+          if (next.sender_id !== user.id) {
+            supabase.from("messages").update({ seen: true }).eq("id", next.id);
           }
         }
       )
@@ -105,24 +108,35 @@ function ChatPage() {
   };
 
   const send = async () => {
-    if (!user || (!text.trim() && !sending)) return;
+    if (!user) return;
     const content = text.trim();
-    if (!content) return;
+    if (!content || sending) return;
+    setSending(true);
     setText("");
-    const { data: m } = await supabase.from("messages").insert({
-      conversation_id: id,
-      sender_id: user.id,
-      content,
-    }).select().single();
-    if (m) setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m as Msg]));
-    await supabase.from("conversations").update({ last_message: content, last_message_at: new Date().toISOString() }).eq("id", id);
-    if (other) {
-      await supabase.from("notifications").insert({ user_id: other.id, actor_id: user.id, type: "message" });
+    try {
+      const { data: m, error } = await supabase.from("messages").insert({
+        conversation_id: id,
+        sender_id: user.id,
+        content,
+      }).select().single();
+      if (error) throw error;
+      // Don't optimistically push — realtime INSERT handler will append (with dedup).
+      // But if realtime is delayed, ensure it shows up:
+      if (m) setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m as Msg]));
+      await supabase.from("conversations").update({ last_message: content, last_message_at: new Date().toISOString() }).eq("id", id);
+      if (other) {
+        await supabase.from("notifications").insert({ user_id: other.id, actor_id: user.id, type: "message" });
+      }
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to send");
+      setText(content);
+    } finally {
+      setSending(false);
     }
   };
 
   const sendImage = async (file: File) => {
-    if (!user) return;
+    if (!user || sending) return;
     setSending(true);
     try {
       const url = await uploadFile("chat", user.id, file);
@@ -131,7 +145,7 @@ function ChatPage() {
         sender_id: user.id,
         image_url: url,
       }).select().single();
-      if (m) setMessages((prev) => [...prev, m as Msg]);
+      if (m) setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m as Msg]));
       await supabase.from("conversations").update({ last_message: "📷 Photo", last_message_at: new Date().toISOString() }).eq("id", id);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -147,74 +161,107 @@ function ChatPage() {
   };
 
   const online = other && Date.now() - new Date(other.last_seen).getTime() < 60000;
+  const lastSeenLabel = (() => {
+    if (!other) return "";
+    if (online) return "Active now";
+    const diff = Date.now() - new Date(other.last_seen).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 60) return `Last seen ${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `Last seen ${h}h ago`;
+    const d = Math.floor(h / 24);
+    return d === 1 ? "Last seen yesterday" : `Last seen ${d}d ago`;
+  })();
+  const status = otherTyping ? "typing…" : lastSeenLabel;
 
   return (
-    <div className="flex flex-col h-screen">
-      <header className="glass-strong px-3 h-14 flex items-center gap-3 border-b border-border safe-top shrink-0">
-        <Link to="/messages" className="p-2 -ml-1"><ArrowLeft className="w-5 h-5" /></Link>
+    <div className="flex flex-col h-screen bg-background">
+      <header className="glass-strong px-3 h-16 flex items-center gap-3 border-b border-white/5 safe-top shrink-0">
+        <Link to="/messages" className="p-2 -ml-1 rounded-full hover:bg-white/5 transition"><ArrowLeft className="w-5 h-5" /></Link>
         {other && (
           <Link to="/u/$username" params={{ username: other.username }} className="flex items-center gap-3 flex-1 min-w-0">
-            <Avatar url={other.avatar_url} username={other.username} size={36} ring />
+            <div className="relative">
+              <Avatar url={other.avatar_url} username={other.username} size={40} ring />
+              {online && <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[oklch(0.72_0.2_150)] border-2 border-background" />}
+            </div>
             <div className="min-w-0">
               <div className="font-semibold text-sm truncate">{other.username}</div>
-              <div className="text-xs text-muted-foreground">{online ? "Active now" : "Offline"}</div>
+              <div className={`text-[11px] ${otherTyping ? "text-gradient font-semibold" : "text-muted-foreground"}`}>{status}</div>
             </div>
           </Link>
         )}
-        <button onClick={deleteChat} className="p-2 text-muted-foreground hover:text-destructive">
+        {other && (
+          <Link
+            to="/u/$username"
+            params={{ username: other.username }}
+            className="text-[11px] font-semibold px-3 py-1.5 rounded-full glass border border-white/10"
+          >
+            View
+          </Link>
+        )}
+        <button onClick={deleteChat} className="p-2 text-muted-foreground hover:text-destructive rounded-full hover:bg-white/5 transition">
           <Trash2 className="w-5 h-5" />
         </button>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
-        {messages.map((m, i) => {
-          const mine = m.sender_id === user?.id;
-          const last = i === messages.length - 1;
-          return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] ${mine ? "bg-gradient-brand text-primary-foreground" : "glass"} rounded-3xl ${m.image_url ? "p-1" : "px-4 py-2"}`}>
-                {m.image_url ? (
-                  <img src={m.image_url} className="rounded-2xl max-h-72 object-cover" />
-                ) : (
-                  <span className="text-sm whitespace-pre-wrap break-words">{m.content}</span>
+        <AnimatePresence initial={false}>
+          {messages.map((m, i) => {
+            const mine = m.sender_id === user?.id;
+            const last = i === messages.length - 1;
+            return (
+              <motion.div
+                key={m.id}
+                initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className={`flex ${mine ? "justify-end" : "justify-start"}`}
+              >
+                <div className={`max-w-[78%] ${mine ? "bg-gradient-brand text-primary-foreground shadow-glow" : "glass border border-white/5"} rounded-3xl ${m.image_url ? "p-1" : "px-4 py-2.5"}`}>
+                  {m.image_url ? (
+                    <img src={m.image_url} className="rounded-2xl max-h-72 object-cover" />
+                  ) : (
+                    <span className="text-sm leading-snug whitespace-pre-wrap break-words">{m.content}</span>
+                  )}
+                </div>
+                {mine && last && (
+                  <span className="self-end ml-1 text-[10px] text-muted-foreground">{m.seen ? "Seen" : "Sent"}</span>
                 )}
-              </div>
-              {mine && last && (
-                <span className="self-end ml-1 text-[10px] text-muted-foreground">{m.seen ? "Seen" : "Sent"}</span>
-              )}
-            </div>
-          );
-        })}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
         {otherTyping && (
-          <div className="flex justify-start">
-            <div className="glass rounded-3xl px-4 py-2 flex gap-1">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+            <div className="glass border border-white/5 rounded-3xl px-4 py-2.5 flex gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" />
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0.15s]" />
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0.3s]" />
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
-      <div className="p-3 glass-strong border-t border-border safe-bottom shrink-0">
-        <div className="flex items-center gap-2 px-2 h-12 rounded-full glass">
-          <label className="p-2 cursor-pointer text-muted-foreground hover:text-foreground">
+      <div className="p-3 glass-strong border-t border-white/5 safe-bottom shrink-0">
+        <div className="flex items-center gap-2 px-2 h-12 rounded-full glass border border-white/10">
+          <label className="p-2 cursor-pointer text-muted-foreground hover:text-foreground transition">
             <ImageIcon className="w-5 h-5" />
             <input type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && sendImage(e.target.files[0])} />
           </label>
           <input
             value={text}
             onChange={(e) => { setText(e.target.value); sendTyping(); }}
-            onKeyDown={(e) => e.key === "Enter" && send()}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
             placeholder="Message…"
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
           />
           <button
             onClick={send}
-            disabled={!text.trim()}
-            className="p-2 text-primary disabled:opacity-40"
+            disabled={!text.trim() || sending}
+            className="grid place-items-center w-9 h-9 rounded-full bg-gradient-brand text-primary-foreground shadow-glow disabled:opacity-40 disabled:shadow-none active:scale-95 transition"
+            aria-label="Send"
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-4 h-4" />
           </button>
         </div>
       </div>
