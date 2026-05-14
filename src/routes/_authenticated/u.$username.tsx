@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
-import { BadgeCheck, Settings, Lock, Grid3x3, Bookmark } from "lucide-react";
+import { BadgeCheck, Settings, Lock, Grid3x3, Bookmark, Ban, Send } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { canMessage, blockUser, unblockUser, isBlocked } from "@/lib/social";
 
 export const Route = createFileRoute("/_authenticated/u/$username")({
   component: ProfilePage,
@@ -25,6 +26,8 @@ function ProfilePage() {
   const [counts, setCounts] = useState({ followers: 0, following: 0, posts: 0 });
   const [followStatus, setFollowStatus] = useState<"none" | "pending" | "accepted">("none");
   const [tab, setTab] = useState<"posts" | "saved">("posts");
+  const [canDM, setCanDM] = useState(false);
+  const [blocked, setBlocked] = useState(false);
 
   const isMe = me?.username === username;
 
@@ -46,6 +49,14 @@ function ProfilePage() {
     setPosts(ps ?? []);
     setCounts({ followers: f1 ?? 0, following: f2 ?? 0, posts: pc ?? 0 });
     setFollowStatus((follow?.data?.status as any) ?? "none");
+    if (user && user.id !== prof.id) {
+      const [dm, bk] = await Promise.all([
+        canMessage(user.id, prof.id),
+        isBlocked(user.id, prof.id),
+      ]);
+      setCanDM(dm);
+      setBlocked(bk);
+    }
   };
 
   useEffect(() => { load(); }, [username, user?.id]);
