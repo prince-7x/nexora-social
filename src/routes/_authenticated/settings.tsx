@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, LogOut, Lock, KeyRound, ChevronRight, Shield } from "lucide-react";
+import { ArrowLeft, LogOut, Lock, KeyRound, ChevronRight, Shield, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -40,6 +40,12 @@ function SettingsPage() {
         <Link to="/edit-profile" className="flex items-center gap-3 p-4 rounded-2xl glass">
           <Shield className="w-5 h-5 text-muted-foreground" />
           <span className="flex-1 font-semibold">Edit profile</span>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </Link>
+
+        <Link to="/close-friends" className="flex items-center gap-3 p-4 rounded-2xl glass">
+          <Users className="w-5 h-5 text-muted-foreground" />
+          <span className="flex-1 font-semibold">Close friends</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </Link>
 

@@ -83,52 +83,7 @@ function FeedPage() {
         </div>
       </header>
 
-      {/* Stories / friends rail */}
-      <section className="border-b border-border/60">
-        <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 py-4">
-          {/* Your story */}
-          <Link
-            to="/create"
-            className="flex flex-col items-center gap-1.5 shrink-0 w-[68px]"
-          >
-            <div className="relative w-[64px] h-[64px] rounded-full bg-muted/60 grid place-items-center border border-border">
-              <Avatar
-                url={profile?.avatar_url}
-                username={profile?.username}
-                size={56}
-              />
-              <span className="absolute bottom-0 right-0 grid place-items-center w-5 h-5 rounded-full bg-gradient-brand ring-2 ring-background">
-                <Plus className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
-              </span>
-            </div>
-            <span className="text-[11px] text-muted-foreground truncate w-full text-center">Your story</span>
-          </Link>
-
-          {friends.length === 0 && posts !== null && (
-            <div className="flex items-center text-xs text-muted-foreground/70 px-2">
-              Follow people to see their stories here
-            </div>
-          )}
-
-          {friends.map((f) => (
-            <Link
-              key={f.id}
-              to="/u/$username"
-              params={{ username: f.username }}
-              className="flex flex-col items-center gap-1.5 shrink-0 w-[68px]"
-            >
-              <div className="p-[2px] rounded-full bg-gradient-brand">
-                <div className="p-[2px] rounded-full bg-background">
-                  <Avatar url={f.avatar_url} username={f.username} size={58} />
-                </div>
-              </div>
-              <span className="text-[11px] text-foreground/80 truncate w-full text-center">
-                {f.full_name?.split(" ")[0] || f.username}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <StoriesRail />
 
       <button
         onClick={onRefresh}
