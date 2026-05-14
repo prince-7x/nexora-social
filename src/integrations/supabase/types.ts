@@ -80,6 +80,24 @@ export type Database = {
           },
         ]
       }
+      close_friends: {
+        Row: {
+          created_at: string
+          friend_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -401,6 +419,63 @@ export type Database = {
         }
         Relationships: []
       }
+      stories: {
+        Row: {
+          close_friends_only: boolean
+          created_at: string
+          expires_at: string
+          id: string
+          image_url: string
+          music_artist: string | null
+          music_cover_url: string | null
+          music_preview_url: string | null
+          music_title: string | null
+          user_id: string
+        }
+        Insert: {
+          close_friends_only?: boolean
+          created_at?: string
+          expires_at?: string
+          id?: string
+          image_url: string
+          music_artist?: string | null
+          music_cover_url?: string | null
+          music_preview_url?: string | null
+          music_title?: string | null
+          user_id: string
+        }
+        Update: {
+          close_friends_only?: boolean
+          created_at?: string
+          expires_at?: string
+          id?: string
+          image_url?: string
+          music_artist?: string | null
+          music_cover_url?: string | null
+          music_preview_url?: string | null
+          music_title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      story_views: {
+        Row: {
+          story_id: string
+          viewed_at: string
+          viewer_id: string
+        }
+        Insert: {
+          story_id: string
+          viewed_at?: string
+          viewer_id: string
+        }
+        Update: {
+          story_id?: string
+          viewed_at?: string
+          viewer_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -408,6 +483,10 @@ export type Database = {
     Functions: {
       can_message: {
         Args: { _recipient: string; _sender: string }
+        Returns: boolean
+      }
+      can_view_story: {
+        Args: { _author: string; _close_only: boolean; _viewer: string }
         Returns: boolean
       }
     }
