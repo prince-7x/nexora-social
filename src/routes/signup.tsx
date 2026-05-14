@@ -19,8 +19,8 @@ const schema = z.object({
     .string()
     .trim()
     .min(3)
-    .max(24)
-    .regex(/^[a-z0-9_.]+$/i, "letters, numbers, _ or . only"),
+    .max(20)
+    .regex(/^[a-z0-9_.]+$/, "lowercase letters, numbers, _ or . only"),
   email: z.string().trim().email().max(255),
   password: z.string().min(8).max(128),
 });
@@ -40,27 +40,28 @@ function SignupPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse(form);
+    const normalized = { ...form, username: form.username.trim().toLowerCase() };
+    const parsed = schema.safeParse(normalized);
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
 
     setSubmitting(true);
-    // check username uniqueness
+    // check username uniqueness (case-insensitive — DB stores lowercase)
     const { data: existing } = await supabase
       .from("profiles")
       .select("id")
-      .ilike("username", form.username)
+      .eq("username", normalized.username)
       .maybeSingle();
     if (existing) {
       setSubmitting(false);
-      return toast.error("Username taken");
+      return toast.error("Username already taken");
     }
 
     const { error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
+      email: normalized.email,
+      password: normalized.password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { username: form.username, full_name: form.full_name },
+        data: { username: normalized.username, full_name: normalized.full_name },
       },
     });
     setSubmitting(false);
@@ -87,7 +88,15 @@ function SignupPage() {
               className="bg-transparent w-full outline-none text-sm placeholder:text-muted-foreground" />
           </Field>
           <Field icon={<AtSign className="w-4 h-4" />}>
-            <input required placeholder="Username" value={form.username} onChange={update("username")}
+            <input
+              required
+              placeholder="username (e.g. nexora_01)"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, "") })}
+              maxLength={20}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               className="bg-transparent w-full outline-none text-sm placeholder:text-muted-foreground" />
           </Field>
           <Field icon={<Mail className="w-4 h-4" />}>

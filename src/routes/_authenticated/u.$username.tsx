@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
-import { BadgeCheck, Settings, Lock, Grid3x3, Bookmark } from "lucide-react";
+import { BadgeCheck, Settings, Lock, Grid3x3, Bookmark, Ban, Send } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { canMessage, blockUser, unblockUser, isBlocked } from "@/lib/social";
 
 export const Route = createFileRoute("/_authenticated/u/$username")({
   component: ProfilePage,
@@ -25,6 +26,8 @@ function ProfilePage() {
   const [counts, setCounts] = useState({ followers: 0, following: 0, posts: 0 });
   const [followStatus, setFollowStatus] = useState<"none" | "pending" | "accepted">("none");
   const [tab, setTab] = useState<"posts" | "saved">("posts");
+  const [canDM, setCanDM] = useState(false);
+  const [blocked, setBlocked] = useState(false);
 
   const isMe = me?.username === username;
 
@@ -46,6 +49,14 @@ function ProfilePage() {
     setPosts(ps ?? []);
     setCounts({ followers: f1 ?? 0, following: f2 ?? 0, posts: pc ?? 0 });
     setFollowStatus((follow?.data?.status as any) ?? "none");
+    if (user && user.id !== prof.id) {
+      const [dm, bk] = await Promise.all([
+        canMessage(user.id, prof.id),
+        isBlocked(user.id, prof.id),
+      ]);
+      setCanDM(dm);
+      setBlocked(bk);
+    }
   };
 
   useEffect(() => { load(); }, [username, user?.id]);
@@ -66,6 +77,13 @@ function ProfilePage() {
 
   const message = async () => {
     if (!user || !p) return;
+    if (!canDM) {
+      return toast.error(
+        p.is_private
+          ? `${p.username} must follow you back to receive messages`
+          : "You can't message this user"
+      );
+    }
     const [u1, u2] = [user.id, p.id].sort();
     const { data: existing } = await supabase
       .from("conversations").select("id").eq("user1_id", u1).eq("user2_id", u2).maybeSingle();
@@ -76,6 +94,22 @@ function ProfilePage() {
       convId = data.id;
     }
     nav({ to: "/messages/$id", params: { id: convId } });
+  };
+
+  const onBlock = async () => {
+    if (!user || !p) return;
+    if (blocked) {
+      await unblockUser(user.id, p.id);
+      setBlocked(false);
+      toast.success("Unblocked");
+    } else {
+      if (!confirm(`Block ${p.username}? They won't be able to find your profile or message you.`)) return;
+      await blockUser(user.id, p.id);
+      setBlocked(true);
+      setFollowStatus("none");
+      toast.success("User blocked");
+    }
+    load();
   };
 
   if (!p) {
@@ -118,11 +152,26 @@ function ProfilePage() {
             <>
               <button
                 onClick={toggleFollow}
-                className={`flex-1 h-10 rounded-xl font-semibold text-sm ${followStatus === "none" ? "bg-gradient-brand text-primary-foreground shadow-glow" : "glass"}`}
+                disabled={blocked}
+                className={`flex-1 h-10 rounded-xl font-semibold text-sm disabled:opacity-50 ${followStatus === "none" ? "bg-gradient-brand text-primary-foreground shadow-glow" : "glass"}`}
               >
-                {followStatus === "accepted" ? "Following" : followStatus === "pending" ? "Requested" : "Follow"}
+                {blocked ? "Blocked" : followStatus === "accepted" ? "Following" : followStatus === "pending" ? "Requested" : "Follow"}
               </button>
-              <button onClick={message} className="flex-1 h-10 rounded-xl glass font-semibold text-sm">Message</button>
+              <button
+                onClick={message}
+                disabled={!canDM || blocked}
+                title={!canDM ? "They must follow you back to chat" : ""}
+                className="flex-1 h-10 rounded-xl glass font-semibold text-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                <Send className="w-4 h-4" /> Message
+              </button>
+              <button
+                onClick={onBlock}
+                aria-label={blocked ? "Unblock" : "Block"}
+                className="w-10 h-10 grid place-items-center rounded-xl glass text-destructive"
+              >
+                <Ban className="w-4 h-4" />
+              </button>
             </>
           )}
         </div>

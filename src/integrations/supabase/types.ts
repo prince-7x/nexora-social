@@ -406,7 +406,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_message: {
+        Args: { _recipient: string; _sender: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
