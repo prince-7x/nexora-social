@@ -20,8 +20,11 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedExploreRouteImport } from './routes/_authenticated/explore'
 import { Route as AuthenticatedEditProfileRouteImport } from './routes/_authenticated/edit-profile'
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
+import { Route as AuthenticatedCloseFriendsRouteImport } from './routes/_authenticated/close-friends'
 import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages.index'
 import { Route as AuthenticatedUUsernameRouteImport } from './routes/_authenticated/u.$username'
+import { Route as AuthenticatedStoriesNewRouteImport } from './routes/_authenticated/stories.new'
+import { Route as AuthenticatedStoriesUserIdRouteImport } from './routes/_authenticated/stories.$userId'
 import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 
@@ -81,6 +84,12 @@ const AuthenticatedCreateRoute = AuthenticatedCreateRouteImport.update({
   path: '/create',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCloseFriendsRoute =
+  AuthenticatedCloseFriendsRouteImport.update({
+    id: '/close-friends',
+    path: '/close-friends',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedMessagesIndexRoute =
   AuthenticatedMessagesIndexRouteImport.update({
     id: '/messages/',
@@ -92,6 +101,17 @@ const AuthenticatedUUsernameRoute = AuthenticatedUUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedStoriesNewRoute = AuthenticatedStoriesNewRouteImport.update({
+  id: '/stories/new',
+  path: '/stories/new',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedStoriesUserIdRoute =
+  AuthenticatedStoriesUserIdRouteImport.update({
+    id: '/stories/$userId',
+    path: '/stories/$userId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPIdRoute = AuthenticatedPIdRouteImport.update({
   id: '/p/$id',
   path: '/p/$id',
@@ -109,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/close-friends': typeof AuthenticatedCloseFriendsRoute
   '/create': typeof AuthenticatedCreateRoute
   '/edit-profile': typeof AuthenticatedEditProfileRoute
   '/explore': typeof AuthenticatedExploreRoute
@@ -116,6 +137,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/p/$id': typeof AuthenticatedPIdRoute
+  '/stories/$userId': typeof AuthenticatedStoriesUserIdRoute
+  '/stories/new': typeof AuthenticatedStoriesNewRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
 }
@@ -124,6 +147,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/close-friends': typeof AuthenticatedCloseFriendsRoute
   '/create': typeof AuthenticatedCreateRoute
   '/edit-profile': typeof AuthenticatedEditProfileRoute
   '/explore': typeof AuthenticatedExploreRoute
@@ -132,6 +156,8 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/p/$id': typeof AuthenticatedPIdRoute
+  '/stories/$userId': typeof AuthenticatedStoriesUserIdRoute
+  '/stories/new': typeof AuthenticatedStoriesNewRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
 }
@@ -142,6 +168,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/_authenticated/close-friends': typeof AuthenticatedCloseFriendsRoute
   '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/edit-profile': typeof AuthenticatedEditProfileRoute
   '/_authenticated/explore': typeof AuthenticatedExploreRoute
@@ -150,6 +177,8 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
+  '/_authenticated/stories/$userId': typeof AuthenticatedStoriesUserIdRoute
+  '/_authenticated/stories/new': typeof AuthenticatedStoriesNewRoute
   '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
 }
@@ -161,6 +190,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
+    | '/close-friends'
     | '/create'
     | '/edit-profile'
     | '/explore'
@@ -168,6 +198,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/messages/$id'
     | '/p/$id'
+    | '/stories/$userId'
+    | '/stories/new'
     | '/u/$username'
     | '/messages/'
   fileRoutesByTo: FileRoutesByTo
@@ -176,6 +208,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
+    | '/close-friends'
     | '/create'
     | '/edit-profile'
     | '/explore'
@@ -184,6 +217,8 @@ export interface FileRouteTypes {
     | '/'
     | '/messages/$id'
     | '/p/$id'
+    | '/stories/$userId'
+    | '/stories/new'
     | '/u/$username'
     | '/messages'
   id:
@@ -193,6 +228,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
+    | '/_authenticated/close-friends'
     | '/_authenticated/create'
     | '/_authenticated/edit-profile'
     | '/_authenticated/explore'
@@ -201,6 +237,8 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/messages/$id'
     | '/_authenticated/p/$id'
+    | '/_authenticated/stories/$userId'
+    | '/_authenticated/stories/new'
     | '/_authenticated/u/$username'
     | '/_authenticated/messages/'
   fileRoutesById: FileRoutesById
@@ -292,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/close-friends': {
+      id: '/_authenticated/close-friends'
+      path: '/close-friends'
+      fullPath: '/close-friends'
+      preLoaderRoute: typeof AuthenticatedCloseFriendsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/messages/': {
       id: '/_authenticated/messages/'
       path: '/messages'
@@ -304,6 +349,20 @@ declare module '@tanstack/react-router' {
       path: '/u/$username'
       fullPath: '/u/$username'
       preLoaderRoute: typeof AuthenticatedUUsernameRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/stories/new': {
+      id: '/_authenticated/stories/new'
+      path: '/stories/new'
+      fullPath: '/stories/new'
+      preLoaderRoute: typeof AuthenticatedStoriesNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/stories/$userId': {
+      id: '/_authenticated/stories/$userId'
+      path: '/stories/$userId'
+      fullPath: '/stories/$userId'
+      preLoaderRoute: typeof AuthenticatedStoriesUserIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/p/$id': {
@@ -324,6 +383,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedCloseFriendsRoute: typeof AuthenticatedCloseFriendsRoute
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
   AuthenticatedEditProfileRoute: typeof AuthenticatedEditProfileRoute
   AuthenticatedExploreRoute: typeof AuthenticatedExploreRoute
@@ -332,11 +392,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedMessagesIdRoute: typeof AuthenticatedMessagesIdRoute
   AuthenticatedPIdRoute: typeof AuthenticatedPIdRoute
+  AuthenticatedStoriesUserIdRoute: typeof AuthenticatedStoriesUserIdRoute
+  AuthenticatedStoriesNewRoute: typeof AuthenticatedStoriesNewRoute
   AuthenticatedUUsernameRoute: typeof AuthenticatedUUsernameRoute
   AuthenticatedMessagesIndexRoute: typeof AuthenticatedMessagesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedCloseFriendsRoute: AuthenticatedCloseFriendsRoute,
   AuthenticatedCreateRoute: AuthenticatedCreateRoute,
   AuthenticatedEditProfileRoute: AuthenticatedEditProfileRoute,
   AuthenticatedExploreRoute: AuthenticatedExploreRoute,
@@ -345,6 +408,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedMessagesIdRoute: AuthenticatedMessagesIdRoute,
   AuthenticatedPIdRoute: AuthenticatedPIdRoute,
+  AuthenticatedStoriesUserIdRoute: AuthenticatedStoriesUserIdRoute,
+  AuthenticatedStoriesNewRoute: AuthenticatedStoriesNewRoute,
   AuthenticatedUUsernameRoute: AuthenticatedUUsernameRoute,
   AuthenticatedMessagesIndexRoute: AuthenticatedMessagesIndexRoute,
 }

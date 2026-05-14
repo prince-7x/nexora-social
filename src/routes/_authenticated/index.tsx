@@ -5,21 +5,17 @@ import { useAuth } from "@/lib/auth";
 import { PostCard, type FeedPost } from "@/components/PostCard";
 import { hydratePosts } from "@/lib/posts";
 import { Logo } from "@/components/Logo";
-import { Avatar } from "@/components/Avatar";
-import { MessageSquare, Users, Plus } from "lucide-react";
+import { StoriesRail } from "@/components/StoriesRail";
+import { MessageSquare, Users } from "lucide-react";
 import { motion } from "framer-motion";
-import type { Profile } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: FeedPage,
 });
 
-type FriendStub = Pick<Profile, "id" | "username" | "avatar_url" | "full_name">;
-
 function FeedPage() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [posts, setPosts] = useState<FeedPost[] | null>(null);
-  const [friends, setFriends] = useState<FriendStub[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = async () => {
@@ -34,17 +30,6 @@ function FeedPage() {
       followingIds = (f ?? []).map((r: any) => r.following_id);
     }
 
-    if (followingIds.length) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id,username,avatar_url,full_name")
-        .in("id", followingIds)
-        .order("last_seen", { ascending: false })
-        .limit(20);
-      setFriends((profs as FriendStub[]) ?? []);
-    } else {
-      setFriends([]);
-    }
 
     const { data: rows } = await supabase
       .from("posts")
