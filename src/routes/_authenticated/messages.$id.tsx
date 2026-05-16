@@ -115,7 +115,7 @@ function ChatPage() {
           .from("message_reactions" as any)
           .select("message_id,user_id,emoji")
           .in("message_id", ids);
-        setReactions((rxs as Reaction[]) ?? []);
+        setReactions(((rxs as unknown) as Reaction[]) ?? []);
       }
 
       await supabase.from("messages").update({ seen: true }).eq("conversation_id", id).neq("sender_id", user.id).eq("seen", false);
