@@ -11,6 +11,7 @@ import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "sonner";
 import { BRAND } from "@/lib/brand";
 import { Splash } from "@/components/Splash";
+import { ThemeBoot } from "@/components/ThemeBoot";
 
 function NotFoundComponent() {
   return (
