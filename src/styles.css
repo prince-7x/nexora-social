@@ -77,6 +77,88 @@
 
 .dark { color-scheme: dark; }
 
+/* ===== THEMES ===== */
+/* Default = amoled-pink (already defined in :root) */
+
+[data-theme="amoled-purple"] {
+  --background: oklch(0.06 0.01 290);
+  --card: oklch(0.11 0.02 290);
+  --primary: oklch(0.7 0.25 295);
+  --ring: oklch(0.7 0.25 295);
+  --brand-1: oklch(0.55 0.28 280);
+  --brand-2: oklch(0.7 0.27 305);
+  --brand-3: oklch(0.78 0.2 330);
+  --gradient-brand: linear-gradient(135deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+  --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.3 0.22 285 / 0.4), transparent 60%);
+  --shadow-glow: 0 10px 40px -10px oklch(0.6 0.28 290 / 0.55);
+}
+
+[data-theme="amoled-cyan"] {
+  --background: oklch(0.06 0.01 220);
+  --card: oklch(0.11 0.02 220);
+  --primary: oklch(0.78 0.18 200);
+  --ring: oklch(0.78 0.18 200);
+  --brand-1: oklch(0.65 0.2 220);
+  --brand-2: oklch(0.78 0.18 195);
+  --brand-3: oklch(0.85 0.18 170);
+  --gradient-brand: linear-gradient(135deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+  --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.3 0.18 210 / 0.4), transparent 60%);
+  --shadow-glow: 0 10px 40px -10px oklch(0.65 0.22 200 / 0.55);
+}
+
+[data-theme="amoled-sunset"] {
+  --background: oklch(0.07 0.015 30);
+  --card: oklch(0.12 0.02 30);
+  --primary: oklch(0.75 0.2 35);
+  --ring: oklch(0.75 0.2 35);
+  --brand-1: oklch(0.65 0.25 15);
+  --brand-2: oklch(0.75 0.22 45);
+  --brand-3: oklch(0.85 0.18 80);
+  --gradient-brand: linear-gradient(135deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+  --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.35 0.22 30 / 0.4), transparent 60%);
+  --shadow-glow: 0 10px 40px -10px oklch(0.7 0.25 30 / 0.55);
+}
+
+[data-theme="amoled-emerald"] {
+  --background: oklch(0.06 0.01 160);
+  --card: oklch(0.11 0.02 160);
+  --primary: oklch(0.72 0.2 155);
+  --ring: oklch(0.72 0.2 155);
+  --brand-1: oklch(0.55 0.2 165);
+  --brand-2: oklch(0.72 0.2 150);
+  --brand-3: oklch(0.82 0.18 130);
+  --gradient-brand: linear-gradient(135deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+  --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.3 0.2 155 / 0.35), transparent 60%);
+  --shadow-glow: 0 10px 40px -10px oklch(0.65 0.22 155 / 0.55);
+}
+
+[data-theme="amoled-crimson"] {
+  --background: oklch(0.06 0.01 15);
+  --card: oklch(0.11 0.02 15);
+  --primary: oklch(0.7 0.25 18);
+  --ring: oklch(0.7 0.25 18);
+  --brand-1: oklch(0.55 0.27 10);
+  --brand-2: oklch(0.7 0.26 20);
+  --brand-3: oklch(0.78 0.2 50);
+  --gradient-brand: linear-gradient(135deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+  --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.3 0.25 15 / 0.4), transparent 60%);
+  --shadow-glow: 0 10px 40px -10px oklch(0.65 0.28 15 / 0.55);
+}
+
+[data-theme="amoled-mono"] {
+  --background: oklch(0.04 0 0);
+  --card: oklch(0.1 0 0);
+  --primary: oklch(0.95 0 0);
+  --primary-foreground: oklch(0.05 0 0);
+  --ring: oklch(0.95 0 0);
+  --brand-1: oklch(0.7 0 0);
+  --brand-2: oklch(0.9 0 0);
+  --brand-3: oklch(1 0 0);
+  --gradient-brand: linear-gradient(135deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+  --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.2 0 0 / 0.5), transparent 60%);
+  --shadow-glow: 0 10px 40px -10px oklch(1 0 0 / 0.25);
+}
+
 @layer base {
   html, body, #root { height: 100%; }
   html { color-scheme: dark; }
