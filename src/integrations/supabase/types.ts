@@ -137,6 +137,30 @@ export type Database = {
           },
         ]
       }
+      conversation_nicknames: {
+        Row: {
+          conversation_id: string
+          nickname: string
+          owner_id: string
+          target_id: string
+          updated_at: string
+        }
+        Insert: {
+          conversation_id: string
+          nickname: string
+          owner_id: string
+          target_id: string
+          updated_at?: string
+        }
+        Update: {
+          conversation_id?: string
+          nickname?: string
+          owner_id?: string
+          target_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -217,6 +241,99 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      group_members: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          group_id: string
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          group_id: string
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          group_id?: string
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      group_messages: {
+        Row: {
+          content: string | null
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          group_id: string
+          id: string
+          image_url: string | null
+          reply_to_id: string | null
+          sender_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          group_id: string
+          id?: string
+          image_url?: string | null
+          reply_to_id?: string | null
+          sender_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          group_id?: string
+          id?: string
+          image_url?: string | null
+          reply_to_id?: string | null
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      groups: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          created_by: string
+          id: string
+          last_message: string | null
+          last_message_at: string
+          name: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string
+          name: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string
+          name?: string
+        }
+        Relationships: []
       }
       likes: {
         Row: {
@@ -435,6 +552,7 @@ export type Database = {
           is_private: boolean
           is_verified: boolean
           last_seen: string
+          theme: string
           updated_at: string
           username: string
         }
@@ -447,6 +565,7 @@ export type Database = {
           is_private?: boolean
           is_verified?: boolean
           last_seen?: string
+          theme?: string
           updated_at?: string
           username: string
         }
@@ -459,6 +578,7 @@ export type Database = {
           is_private?: boolean
           is_verified?: boolean
           last_seen?: string
+          theme?: string
           updated_at?: string
           username?: string
         }
@@ -534,6 +654,8 @@ export type Database = {
         Args: { _author: string; _close_only: boolean; _viewer: string }
         Returns: boolean
       }
+      is_group_admin: { Args: { _g: string; _u: string }; Returns: boolean }
+      is_group_member: { Args: { _g: string; _u: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
