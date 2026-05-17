@@ -35,7 +35,7 @@ function GroupsList() {
       .select("id,name,avatar_url,last_message,last_message_at")
       .in("id", ids)
       .order("last_message_at", { ascending: false });
-    setGroups((data ?? []) as Group[]);
+    setGroups(((data ?? []) as unknown) as Group[]);
   };
 
   useEffect(() => {
