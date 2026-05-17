@@ -22,11 +22,15 @@ import { Route as AuthenticatedEditProfileRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
 import { Route as AuthenticatedCloseFriendsRouteImport } from './routes/_authenticated/close-friends'
 import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages.index'
+import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups.index'
 import { Route as AuthenticatedUUsernameRouteImport } from './routes/_authenticated/u.$username'
 import { Route as AuthenticatedStoriesNewRouteImport } from './routes/_authenticated/stories.new'
 import { Route as AuthenticatedStoriesUserIdRouteImport } from './routes/_authenticated/stories.$userId'
 import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
+import { Route as AuthenticatedGroupsNewRouteImport } from './routes/_authenticated/groups.new'
+import { Route as AuthenticatedGroupsIdRouteImport } from './routes/_authenticated/groups.$id'
+import { Route as AuthenticatedGroupsIdMembersRouteImport } from './routes/_authenticated/groups.$id.members'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -96,6 +100,12 @@ const AuthenticatedMessagesIndexRoute =
     path: '/messages/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedGroupsIndexRoute =
+  AuthenticatedGroupsIndexRouteImport.update({
+    id: '/groups/',
+    path: '/groups/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedUUsernameRoute = AuthenticatedUUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
@@ -122,6 +132,22 @@ const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
   path: '/messages/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedGroupsNewRoute = AuthenticatedGroupsNewRouteImport.update({
+  id: '/groups/new',
+  path: '/groups/new',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedGroupsIdRoute = AuthenticatedGroupsIdRouteImport.update({
+  id: '/groups/$id',
+  path: '/groups/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedGroupsIdMembersRoute =
+  AuthenticatedGroupsIdMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => AuthenticatedGroupsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -135,12 +161,16 @@ export interface FileRoutesByFullPath {
   '/explore': typeof AuthenticatedExploreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/groups/$id': typeof AuthenticatedGroupsIdRouteWithChildren
+  '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/stories/$userId': typeof AuthenticatedStoriesUserIdRoute
   '/stories/new': typeof AuthenticatedStoriesNewRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/groups/': typeof AuthenticatedGroupsIndexRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/groups/$id/members': typeof AuthenticatedGroupsIdMembersRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
@@ -154,12 +184,16 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/groups/$id': typeof AuthenticatedGroupsIdRouteWithChildren
+  '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/stories/$userId': typeof AuthenticatedStoriesUserIdRoute
   '/stories/new': typeof AuthenticatedStoriesNewRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/groups': typeof AuthenticatedGroupsIndexRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
+  '/groups/$id/members': typeof AuthenticatedGroupsIdMembersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -175,12 +209,16 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/groups/$id': typeof AuthenticatedGroupsIdRouteWithChildren
+  '/_authenticated/groups/new': typeof AuthenticatedGroupsNewRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
   '/_authenticated/stories/$userId': typeof AuthenticatedStoriesUserIdRoute
   '/_authenticated/stories/new': typeof AuthenticatedStoriesNewRoute
   '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
+  '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/_authenticated/groups/$id/members': typeof AuthenticatedGroupsIdMembersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -196,12 +234,16 @@ export interface FileRouteTypes {
     | '/explore'
     | '/notifications'
     | '/settings'
+    | '/groups/$id'
+    | '/groups/new'
     | '/messages/$id'
     | '/p/$id'
     | '/stories/$userId'
     | '/stories/new'
     | '/u/$username'
+    | '/groups/'
     | '/messages/'
+    | '/groups/$id/members'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -215,12 +257,16 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/settings'
     | '/'
+    | '/groups/$id'
+    | '/groups/new'
     | '/messages/$id'
     | '/p/$id'
     | '/stories/$userId'
     | '/stories/new'
     | '/u/$username'
+    | '/groups'
     | '/messages'
+    | '/groups/$id/members'
   id:
     | '__root__'
     | '/_authenticated'
@@ -235,12 +281,16 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/settings'
     | '/_authenticated/'
+    | '/_authenticated/groups/$id'
+    | '/_authenticated/groups/new'
     | '/_authenticated/messages/$id'
     | '/_authenticated/p/$id'
     | '/_authenticated/stories/$userId'
     | '/_authenticated/stories/new'
     | '/_authenticated/u/$username'
+    | '/_authenticated/groups/'
     | '/_authenticated/messages/'
+    | '/_authenticated/groups/$id/members'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -344,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/groups/': {
+      id: '/_authenticated/groups/'
+      path: '/groups'
+      fullPath: '/groups/'
+      preLoaderRoute: typeof AuthenticatedGroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/u/$username': {
       id: '/_authenticated/u/$username'
       path: '/u/$username'
@@ -379,8 +436,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/groups/new': {
+      id: '/_authenticated/groups/new'
+      path: '/groups/new'
+      fullPath: '/groups/new'
+      preLoaderRoute: typeof AuthenticatedGroupsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/groups/$id': {
+      id: '/_authenticated/groups/$id'
+      path: '/groups/$id'
+      fullPath: '/groups/$id'
+      preLoaderRoute: typeof AuthenticatedGroupsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/groups/$id/members': {
+      id: '/_authenticated/groups/$id/members'
+      path: '/members'
+      fullPath: '/groups/$id/members'
+      preLoaderRoute: typeof AuthenticatedGroupsIdMembersRouteImport
+      parentRoute: typeof AuthenticatedGroupsIdRoute
+    }
   }
 }
+
+interface AuthenticatedGroupsIdRouteChildren {
+  AuthenticatedGroupsIdMembersRoute: typeof AuthenticatedGroupsIdMembersRoute
+}
+
+const AuthenticatedGroupsIdRouteChildren: AuthenticatedGroupsIdRouteChildren = {
+  AuthenticatedGroupsIdMembersRoute: AuthenticatedGroupsIdMembersRoute,
+}
+
+const AuthenticatedGroupsIdRouteWithChildren =
+  AuthenticatedGroupsIdRoute._addFileChildren(
+    AuthenticatedGroupsIdRouteChildren,
+  )
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCloseFriendsRoute: typeof AuthenticatedCloseFriendsRoute
@@ -390,11 +481,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedGroupsIdRoute: typeof AuthenticatedGroupsIdRouteWithChildren
+  AuthenticatedGroupsNewRoute: typeof AuthenticatedGroupsNewRoute
   AuthenticatedMessagesIdRoute: typeof AuthenticatedMessagesIdRoute
   AuthenticatedPIdRoute: typeof AuthenticatedPIdRoute
   AuthenticatedStoriesUserIdRoute: typeof AuthenticatedStoriesUserIdRoute
   AuthenticatedStoriesNewRoute: typeof AuthenticatedStoriesNewRoute
   AuthenticatedUUsernameRoute: typeof AuthenticatedUUsernameRoute
+  AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
   AuthenticatedMessagesIndexRoute: typeof AuthenticatedMessagesIndexRoute
 }
 
@@ -406,11 +500,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedGroupsIdRoute: AuthenticatedGroupsIdRouteWithChildren,
+  AuthenticatedGroupsNewRoute: AuthenticatedGroupsNewRoute,
   AuthenticatedMessagesIdRoute: AuthenticatedMessagesIdRoute,
   AuthenticatedPIdRoute: AuthenticatedPIdRoute,
   AuthenticatedStoriesUserIdRoute: AuthenticatedStoriesUserIdRoute,
   AuthenticatedStoriesNewRoute: AuthenticatedStoriesNewRoute,
   AuthenticatedUUsernameRoute: AuthenticatedUUsernameRoute,
+  AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
   AuthenticatedMessagesIndexRoute: AuthenticatedMessagesIndexRoute,
 }
 

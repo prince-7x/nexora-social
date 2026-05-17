@@ -11,6 +11,7 @@ import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "sonner";
 import { BRAND } from "@/lib/brand";
 import { Splash } from "@/components/Splash";
+import { ThemeBoot } from "@/components/ThemeBoot";
 
 function NotFoundComponent() {
   return (
@@ -106,6 +107,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <ThemeBoot />
         <Splash />
         <Outlet />
         <Toaster position="top-center" theme="dark" richColors />
