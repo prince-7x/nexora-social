@@ -60,7 +60,7 @@ function MessagesIndex() {
       <header className="sticky top-0 z-30 glass-strong px-4 h-14 flex items-center justify-between safe-top">
         <Link to="/" className="p-2 -ml-2"><ArrowLeft className="w-5 h-5" /></Link>
         <h1 className="font-display font-bold">Messages</h1>
-        <div className="w-9" />
+        <Link to="/groups" className="text-xs font-bold text-primary px-2">Groups</Link>
       </header>
 
       {convs.length === 0 ? (
