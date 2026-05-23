@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { BRAND } from "@/lib/brand";
+import { GoogleButton } from "@/components/GoogleButton";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -74,6 +75,11 @@ function LoginPage() {
             {submitting ? "Signing in…" : <>Sign in <ArrowRight className="w-4 h-4" /></>}
           </button>
         </form>
+
+        <div className="mt-5">
+          <GoogleButton label="Continue with Google" />
+        </div>
+
 
         <div className="mt-4 text-center text-sm">
           <Link to="/forgot-password" className="text-muted-foreground hover:text-foreground">

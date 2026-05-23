@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { User, AtSign, Mail, Lock, ArrowRight } from "lucide-react";
 import { BRAND } from "@/lib/brand";
 import { z } from "zod";
+import { GoogleButton } from "@/components/GoogleButton";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
@@ -115,6 +116,12 @@ function SignupPage() {
             {submitting ? "Creating…" : <>Create account <ArrowRight className="w-4 h-4" /></>}
           </button>
         </form>
+
+        <div className="mt-5">
+          <GoogleButton label="Sign up with Google" />
+        </div>
+
+
 
         <div className="mt-8 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
