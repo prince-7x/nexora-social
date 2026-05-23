@@ -28,10 +28,11 @@ function Members() {
   const [showAdd, setShowAdd] = useState(false);
 
   const load = async () => {
-    const { data } = await supabase
-      .from("group_members" as any)
-      .select("user_id,role,status")
-      .eq("group_id", id);
+    const [{ data }, { data: g }] = await Promise.all([
+      supabase.from("group_members" as any).select("user_id,role,status").eq("group_id", id),
+      supabase.from("groups" as any).select("created_by").eq("id", id).maybeSingle(),
+    ]);
+    setCreatorId(((g as any)?.created_by ?? null));
     const rows = ((data ?? []) as unknown) as Member[];
     const ids = rows.map((r) => r.user_id);
     if (ids.length) {
@@ -45,6 +46,24 @@ function Members() {
   };
 
   useEffect(() => { load(); }, [id, user?.id]);
+
+  const leaveGroup = async () => {
+    if (!user) return;
+    if (!confirm("Leave this group?")) return;
+    await supabase.from("group_members" as any).delete().eq("group_id", id).eq("user_id", user.id);
+    toast.success("Left group");
+    nav({ to: "/groups" });
+  };
+
+  const deleteGroup = async () => {
+    if (!confirm("Delete this group for everyone? This cannot be undone.")) return;
+    await supabase.from("group_messages" as any).delete().eq("group_id", id);
+    await supabase.from("group_members" as any).delete().eq("group_id", id);
+    await supabase.from("groups" as any).delete().eq("id", id);
+    toast.success("Group deleted");
+    nav({ to: "/groups" });
+  };
+
 
   const loadFriends = async () => {
     if (!user) return;
