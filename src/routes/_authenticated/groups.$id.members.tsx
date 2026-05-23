@@ -1,9 +1,9 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
-import { ArrowLeft, Crown, UserMinus, UserPlus, Check, X } from "lucide-react";
+import { ArrowLeft, Crown, LogOut, Trash2, UserMinus, UserPlus, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 type Member = {
