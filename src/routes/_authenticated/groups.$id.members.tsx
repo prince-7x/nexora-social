@@ -187,6 +187,23 @@ function Members() {
             ))}
           </ul>
         </div>
+
+        <div className="pt-2 space-y-2">
+          <button
+            onClick={leaveGroup}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl bg-white/5 border border-white/10 text-sm font-semibold text-destructive"
+          >
+            <LogOut className="w-4 h-4" /> Leave group
+          </button>
+          {creatorId === user?.id && (
+            <button
+              onClick={deleteGroup}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl bg-destructive/15 border border-destructive/30 text-sm font-bold text-destructive"
+            >
+              <Trash2 className="w-4 h-4" /> Delete group
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
