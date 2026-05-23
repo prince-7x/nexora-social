@@ -19,7 +19,9 @@ export const Route = createFileRoute("/_authenticated/groups/$id/members")({
 
 function Members() {
   const { user } = useAuth();
+  const nav = useNavigate();
   const { id } = useParams({ from: "/_authenticated/groups/$id/members" });
+  const [creatorId, setCreatorId] = useState<string | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [meAdmin, setMeAdmin] = useState(false);
   const [friends, setFriends] = useState<{ id: string; username: string; avatar_url: string | null }[]>([]);
