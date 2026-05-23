@@ -1,9 +1,9 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
-import { ArrowLeft, Crown, UserMinus, UserPlus, Check, X } from "lucide-react";
+import { ArrowLeft, Crown, LogOut, Trash2, UserMinus, UserPlus, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 type Member = {
@@ -19,17 +19,20 @@ export const Route = createFileRoute("/_authenticated/groups/$id/members")({
 
 function Members() {
   const { user } = useAuth();
+  const nav = useNavigate();
   const { id } = useParams({ from: "/_authenticated/groups/$id/members" });
+  const [creatorId, setCreatorId] = useState<string | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [meAdmin, setMeAdmin] = useState(false);
   const [friends, setFriends] = useState<{ id: string; username: string; avatar_url: string | null }[]>([]);
   const [showAdd, setShowAdd] = useState(false);
 
   const load = async () => {
-    const { data } = await supabase
-      .from("group_members" as any)
-      .select("user_id,role,status")
-      .eq("group_id", id);
+    const [{ data }, { data: g }] = await Promise.all([
+      supabase.from("group_members" as any).select("user_id,role,status").eq("group_id", id),
+      supabase.from("groups" as any).select("created_by").eq("id", id).maybeSingle(),
+    ]);
+    setCreatorId(((g as any)?.created_by ?? null));
     const rows = ((data ?? []) as unknown) as Member[];
     const ids = rows.map((r) => r.user_id);
     if (ids.length) {
@@ -43,6 +46,24 @@ function Members() {
   };
 
   useEffect(() => { load(); }, [id, user?.id]);
+
+  const leaveGroup = async () => {
+    if (!user) return;
+    if (!confirm("Leave this group?")) return;
+    await supabase.from("group_members" as any).delete().eq("group_id", id).eq("user_id", user.id);
+    toast.success("Left group");
+    nav({ to: "/groups" });
+  };
+
+  const deleteGroup = async () => {
+    if (!confirm("Delete this group for everyone? This cannot be undone.")) return;
+    await supabase.from("group_messages" as any).delete().eq("group_id", id);
+    await supabase.from("group_members" as any).delete().eq("group_id", id);
+    await supabase.from("groups" as any).delete().eq("id", id);
+    toast.success("Group deleted");
+    nav({ to: "/groups" });
+  };
+
 
   const loadFriends = async () => {
     if (!user) return;
@@ -165,6 +186,23 @@ function Members() {
               </li>
             ))}
           </ul>
+        </div>
+
+        <div className="pt-2 space-y-2">
+          <button
+            onClick={leaveGroup}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl bg-white/5 border border-white/10 text-sm font-semibold text-destructive"
+          >
+            <LogOut className="w-4 h-4" /> Leave group
+          </button>
+          {creatorId === user?.id && (
+            <button
+              onClick={deleteGroup}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl bg-destructive/15 border border-destructive/30 text-sm font-bold text-destructive"
+            >
+              <Trash2 className="w-4 h-4" /> Delete group
+            </button>
+          )}
         </div>
       </div>
     </div>
